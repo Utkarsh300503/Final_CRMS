@@ -1,124 +1,163 @@
 // src/pages/ComplaintList.jsx
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+  startAfter,
+  doc,
+  getDoc
+} from "firebase/firestore";
+
 import { db } from "../utils/firebase";
 import { useAuth } from "../context/AuthContext";
-import { getDoc, doc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
-// Simple in-memory cache for user docs — persists across component mounts
+import ComplaintCard from "../components/ui/ComplaintCard";
+
+const PAGE_SIZE = 10;
+
+// in-memory user cache for fallback when old complaints lack names
 const userCache = {};
 
-async function fetchUserOnce(uid) {
+async function getUserInfo(uid) {
   if (!uid) return null;
   if (userCache[uid]) return userCache[uid];
+
   try {
     const snap = await getDoc(doc(db, "users", uid));
     if (snap.exists()) {
-      userCache[uid] = snap.data();
-      return userCache[uid];
+      const d = snap.data();
+      userCache[uid] = d;
+      return d;
     }
-  } catch (e) {
-    // ignore errors, return null
-  }
-  userCache[uid] = null;
+  } catch {}
+
   return null;
 }
 
 export default function ComplaintList() {
   const { user } = useAuth();
-  const [list, setList] = useState([]);
+  const nav = useNavigate();
+
+  const [complaints, setComplaints] = useState([]);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [debug, setDebug] = useState({});
 
-  useEffect(() => {
-    let mounted = true;
+  // Build Firestore query
+  function buildQuery(isNext = false) {
+    const col = collection(db, "complaints");
 
-    (async () => {
-      setLoading(true);
-      setList([]);
-      setDebug({});
-      if (!user) {
+    let q;
+
+    if (user.role === "admin") {
+      q = query(col, orderBy("createdAt", "desc"), limit(PAGE_SIZE));
+    } else {
+      q = query(
+        col,
+        where("assignedOfficer", "==", user.uid),
+        orderBy("createdAt", "desc"),
+        limit(PAGE_SIZE)
+      );
+    }
+
+    if (isNext && lastDoc) {
+      q = query(q, startAfter(lastDoc));
+    }
+
+    return q;
+  }
+
+  // Load the first page or next page
+  async function loadPage(isNext = false) {
+    if (!isNext) {
+      setComplaints([]);
+      setLastDoc(null);
+      setHasMore(true);
+    }
+
+    setLoading(true);
+
+    try {
+      const q = buildQuery(isNext);
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        setHasMore(false);
         setLoading(false);
         return;
       }
 
-      try {
-        const colRef = collection(db, "complaints");
-        let q;
-        if (user.role === "admin") {
-          q = query(colRef, orderBy("createdAt", "desc"));
-        } else {
-          q = query(colRef, where("assignedOfficer", "==", user.uid), orderBy("createdAt", "desc"));
-        }
+      const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const newLast = snap.docs[snap.docs.length - 1];
 
-        const snap = await getDocs(q);
-        const complaints = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-        // If documents already include denormalized names -> done
-        // Otherwise fetch missing names using cached fetch (one read per missing uid)
-        const missingUids = new Set();
-        for (const c of complaints) {
-          if (!c.createdByName && c.createdBy) missingUids.add(c.createdBy);
-          if (!c.assignedOfficerName && c.assignedOfficer) missingUids.add(c.assignedOfficer);
+      // fallback: attach names for older docs
+      for (let c of docs) {
+        if (!c.createdByName && c.createdBy) {
+          const u = await getUserInfo(c.createdBy);
+          c.createdByName = (u && (u.name || u.email)) || c.createdBy;
         }
-
-        if (missingUids.size > 0) {
-          // fetch each missing uid once only (cache inside fetchUserOnce)
-          const fetchPromises = Array.from(missingUids).map((uid) => fetchUserOnce(uid));
-          const results = await Promise.all(fetchPromises);
-          // attach resolved names
-          for (const c of complaints) {
-            if (!c.createdByName && c.createdBy) {
-              const u = userCache[c.createdBy];
-              c.createdByName = (u && (u.name || u.email)) || c.createdBy;
-            }
-            if (!c.assignedOfficerName && c.assignedOfficer) {
-              const u = userCache[c.assignedOfficer];
-              c.assignedOfficerName = (u && (u.name || u.email)) || c.assignedOfficer;
-            }
-          }
+        if (!c.assignedOfficerName && c.assignedOfficer) {
+          const u = await getUserInfo(c.assignedOfficer);
+          c.assignedOfficerName = (u && (u.name || u.email)) || c.assignedOfficer;
         }
-
-        if (mounted) {
-          setList(complaints);
-          setDebug({ returned: complaints.length, cachedUsers: Object.keys(userCache).length });
-        }
-      } catch (err) {
-        console.error("ComplaintList error:", err);
-        setDebug({ error: err.message || String(err) });
-      } finally {
-        if (mounted) setLoading(false);
       }
-    })();
 
-    return () => { mounted = false; };
+      setComplaints((prev) => (isNext ? [...prev, ...docs] : docs));
+      setLastDoc(newLast);
+
+      if (snap.docs.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Pagination error:", err);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (user) loadPage(false);
   }, [user]);
 
-  if (loading) return <div style={{ padding: 20 }}>Loading complaints…</div>;
+  if (!user) return null;
 
   return (
-    <div style={{ padding: 20 }}>
+    <div>
       <h2>Complaints</h2>
 
-      <div style={{ marginBottom: 12, color: "#ccc" }}>
-        <strong>Diagnostics:</strong>
-        <pre style={{ color: "#ddd" }}>{JSON.stringify(debug, null, 2)}</pre>
+      {/* Empty state */}
+      {complaints.length === 0 && !loading && (
+        <div>No complaints found</div>
+      )}
+
+      {/* Card List */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {complaints.map((c) => (
+          <ComplaintCard
+            key={c.id}
+            complaint={c}
+            onClick={() => nav(`/complaint/${c.id}`)}
+          />
+        ))}
       </div>
 
-      {list.length === 0 ? (
-        <div>No complaints found</div>
-      ) : (
-        <ul>
-          {list.map((c) => (
-            <li key={c.id} style={{ marginBottom: 12 }}>
-              <strong>{c.title}</strong>
-              <div>Status: {c.status}</div>
-              <div>By: {c.createdByName || c.createdBy}</div>
-              <div>Assigned: {c.assignedOfficerName || c.assignedOfficer}</div>
-              <div style={{ fontSize: 12, color: "#999" }}>id: {c.id}</div>
-            </li>
-          ))}
-        </ul>
+      {/* Loading */}
+      {loading && <div style={{ marginTop: 16 }}>Loading…</div>}
+
+      {/* Load More */}
+      {hasMore && !loading && (
+        <button
+          onClick={() => loadPage(true)}
+          style={{ marginTop: 20 }}
+        >
+          Load More
+        </button>
       )}
     </div>
   );

@@ -1,0 +1,129 @@
+/* src/styles/ui.css - lightweight UI baseline for CRMS */
+
+:root{
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 68px;
+  --topbar-height: 64px;
+  --bg: #171717;
+  --panel: #222427;
+  --muted: #a9b1b8;
+  --text: #e6e6e6;
+  --accent: #2f6fff;
+  --card: #1f2326;
+  --card-border: rgba(255,255,255,0.02);
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+
+.crm-root{min-height:100vh}
+
+/* Topbar */
+.app-topbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:var(--topbar-height);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
+  z-index:40;
+  backdrop-filter: blur(4px);
+  background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.12));
+  border-bottom:1px solid rgba(255,255,255,0.02);
+}
+
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+.brand-mark{font-weight:700;color:var(--accent);font-size:20px}
+.brand-text{font-size:14px;color:var(--muted)}
+
+/* Topbar left burger */
+.burger{
+  background:transparent;border:0;color:var(--muted);font-size:20px;cursor:pointer;padding:6px;border-radius:6px;
+}
+.burger:hover{background:rgba(255,255,255,0.02)}
+
+/* Topbar right */
+.topbar-right{display:flex;align-items:center;gap:12px}
+.username{color:var(--text);opacity:.95;margin-right:6px;font-weight:500}
+.btn-logout{
+  padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);
+  background:var(--panel);color:var(--text);cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,0.35);
+}
+.btn-logout:hover{opacity:.95;transform:translateY(-1px);transition:all .12s ease}
+
+/* Layout main container */
+.ui-main{display:flex;margin-top:var(--topbar-height)}
+
+/* Sidebar */
+.app-sidebar{
+  position:fixed;
+  top:var(--topbar-height);
+  left:0;
+  bottom:0;
+  width:var(--sidebar-width);
+  padding:18px 12px;
+  background:linear-gradient(180deg,var(--panel), #19191b);
+  border-right:1px solid rgba(255,255,255,0.02);
+  overflow:auto;
+  transition:width .18s ease,transform .18s ease;
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.app-sidebar.collapsed{width:var(--sidebar-collapsed-width)}
+.nav-list{list-style:none;padding:8px 0;margin:0;display:flex;flex-direction:column;gap:6px}
+.nav-item{}
+.nav-link{
+  display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;text-decoration:none;color:var(--text);
+  transition:background .12s ease, transform .08s ease; background:transparent;
+}
+.nav-link:hover{background:rgba(255,255,255,0.02)}
+.nav-icon{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:16px}
+.nav-label{font-weight:600;color:var(--text);opacity:0.95}
+.nav-item.active .nav-link{background:linear-gradient(90deg, rgba(47,111,255,0.12), rgba(47,111,255,0.04));box-shadow:inset 0 0 0 1px rgba(47,111,255,0.02)}
+
+.sidebar-footer{padding:6px 4px;display:flex;align-items:center;justify-content:center}
+.collapse-btn{background:transparent;border:1px solid rgba(255,255,255,0.02);padding:6px 10px;border-radius:8px;color:var(--muted);cursor:pointer}
+
+/* Hide labels and brand-text when collapsed */
+.app-sidebar.collapsed .nav-label,
+.app-sidebar.collapsed .brand-text{display:none}
+.app-sidebar.collapsed .brand-mark{margin-left:8px}
+.app-sidebar.collapsed .nav-link{justify-content:center;padding:10px}
+
+/* Main content area */
+.ui-content{
+  margin-left:var(--sidebar-width);
+  padding:28px 36px;
+  width:calc(100% - var(--sidebar-width));
+  transition:margin-left .18s ease,width .18s ease;
+}
+.sidebar-collapsed .ui-content{
+  margin-left:var(--sidebar-collapsed-width);
+  width:calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* Page header / body */
+.page-header{margin-bottom:18px}
+.page-body{}
+
+/* Card style for complaint list (if you use card component) */
+.complaint-card{
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.08));
+  border:1px solid var(--card-border);
+  padding:18px;border-radius:12px;margin-bottom:18px;box-shadow:0 6px 18px rgba(0,0,0,0.45);
+}
+.status-pill{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;display:inline-block}
+.status-open{background:#1133ff;color:#cfe0ff}
+.status-resolved{background:#1b8d53;color:#dff7e8}
+.status-inprogress{background:#b76b05;color:#fff0da}
+
+/* Small screens */
+@media(max-width:880px){
+  .app-sidebar{position:fixed;left:0;top:var(--topbar-height);height:calc(100vh - var(--topbar-height));z-index:60}
+  .ui-content{padding:16px}
+  .brand-text{display:none}
+}
