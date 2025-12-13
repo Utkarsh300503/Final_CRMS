@@ -26,17 +26,52 @@ export async function fetchAllUsers() {
 }
 
 /**
+ * Check if an admin user already exists in the system.
+ * Returns true if at least one admin exists.
+ */
+export async function adminExists() {
+  const col = collection(db, "users");
+  const q = query(col, where("role", "==", "admin"));
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
+/**
  * Update a user's role field in the users collection.
  * - uid: string
  * - newRole: string ('admin' | 'officer' | 'user')
+ * 
+ * SECURITY: Prevents creating multiple admins. Only one admin can exist.
  */
 export async function updateUserRole(uid, newRole) {
   if (!uid) throw new Error("Missing uid");
+  
+  // SECURITY: Prevent creating multiple admins
+  if (newRole === "admin") {
+    const adminExists = await checkAdminExists(uid);
+    if (adminExists) {
+      throw new Error("An admin already exists. Only one admin is allowed in the system. Please remove the existing admin first.");
+    }
+  }
+  
   const ref = doc(db, "users", uid);
   await updateDoc(ref, {
     role: newRole,
     roleUpdatedAt: serverTimestamp(),
   });
+}
+
+/**
+ * Helper function to check if an admin exists (excluding the current user being updated)
+ */
+async function checkAdminExists(excludeUid) {
+  const col = collection(db, "users");
+  const q = query(col, where("role", "==", "admin"));
+  const snap = await getDocs(q);
+  
+  // Check if there's an admin that's not the user being updated
+  const admins = snap.docs.filter(doc => doc.id !== excludeUid);
+  return admins.length > 0;
 }
 
 /**

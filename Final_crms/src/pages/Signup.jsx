@@ -88,9 +88,11 @@ export default function Signup() {
             onChange={(e) => setRole(e.target.value)}
           >
             <option value="officer">Officer</option>
-            <option value="admin">Admin</option>
             <option value="viewer">Viewer</option>
           </select>
+          <div style={{ fontSize: "12px", color: "var(--muted, #a9b1b8)", marginTop: "6px" }}>
+            Note: Admin role cannot be created through signup. Only one admin can exist in the system.
+          </div>
         </div>
 
         <button type="submit" className="primary" style={{ width: "100%" }}>

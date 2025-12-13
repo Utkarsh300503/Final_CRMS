@@ -16,6 +16,10 @@ import {
   getDocFromServer,
   enableNetwork,
   serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
 
 import { db } from "../utils/firebase";
@@ -33,6 +37,21 @@ export function AuthProvider({ children }) {
   // ----------------- SIGNUP -----------------
   async function signup(email, password, name = "", role = "user") {
     try {
+      // SECURITY: Prevent admin role creation through signup
+      if (role === "admin") {
+        throw new Error("Admin role cannot be created through signup. Only one admin can exist in the system.");
+      }
+
+      // Check if admin already exists (additional security check)
+      const adminCheckQuery = query(
+        collection(db, "users"),
+        where("role", "==", "admin")
+      );
+      const adminSnapshot = await getDocs(adminCheckQuery);
+      if (!adminSnapshot.empty && role === "admin") {
+        throw new Error("An admin already exists. Only one admin is allowed in the system.");
+      }
+
       const auth = getAuth();
 
       // create auth user
@@ -43,13 +62,16 @@ export function AuthProvider({ children }) {
         await updateProfile(cred.user, { displayName: name });
       }
 
+      // Ensure role is not admin (double check)
+      const safeRole = role === "admin" ? "officer" : role;
+
       // create user doc in Firestore
       const userDocRef = doc(db, "users", cred.user.uid);
       await setDoc(userDocRef, {
         uid: cred.user.uid,
         email,
         name: name || "",
-        role,
+        role: safeRole,
         createdAt: serverTimestamp(),
       });
 
@@ -61,7 +83,7 @@ export function AuthProvider({ children }) {
           uid: cred.user.uid,
           email,
           name: name || "",
-          role,
+          role: safeRole,
         });
 
       return cred;
