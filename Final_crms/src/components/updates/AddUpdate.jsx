@@ -42,27 +42,37 @@ export default function AddUpdate({ complaintId, onAdded }) {
   }
 
   return (
-    <form onSubmit={submit} style={{ marginTop: 16 }}>
-      <h4>Post update</h4>
+    <form onSubmit={submit} className="card" style={{ marginTop: "20px" }}>
+      <h4 style={{ marginTop: 0, marginBottom: "16px" }}>Post Update</h4>
 
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Write progress update, actions taken, small notes..."
-        rows={3}
-        style={{ width: "100%", padding: 8, borderRadius: 6, background: "rgba(255,255,255,0.02)", color: "#fff" }}
-      />
+      <div style={{ marginBottom: "16px" }}>
+        <label htmlFor="update-text">Update Text</label>
+        <textarea
+          id="update-text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Write progress update, actions taken, small notes..."
+          rows={4}
+        />
+      </div>
 
-      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: 8, borderRadius: 6 }}>
-          <option value="">— keep status —</option>
-          <option value="open">Open</option>
-          <option value="in-progress">In Progress</option>
-          <option value="resolved">Resolved</option>
-        </select>
+      <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
+        <div style={{ flex: "1 1 200px" }}>
+          <label htmlFor="update-status">Change Status (Optional)</label>
+          <select 
+            id="update-status"
+            value={status} 
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="">— keep status —</option>
+            <option value="open">Open</option>
+            <option value="in-progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
 
-        <button type="submit" disabled={saving} style={{ padding: "8px 14px", borderRadius: 6 }}>
-          {saving ? "Posting…" : "Post update"}
+        <button type="submit" disabled={saving} className="primary" style={{ height: "fit-content", marginTop: "20px" }}>
+          {saving ? "Posting…" : "Post Update"}
         </button>
       </div>
     </form>

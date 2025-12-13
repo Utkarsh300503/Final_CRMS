@@ -73,13 +73,15 @@ const styles = {
     display: "flex",
     gap: 12,
     alignItems: "center",
-    padding: collapsed ? "10px 8px" : "12px 16px",
-    margin: "6px 12px",
+    padding: collapsed ? "10px 8px" : "10px 12px",
+    margin: collapsed ? "4px 0" : "4px 0",
     borderRadius: 8,
     color: active ? "#fff" : "var(--sidebar-text, #bfc7cf)",
-    background: active ? "rgba(46,166,255,0.08)" : "transparent",
+    background: active ? "rgba(46,166,255,0.12)" : "transparent",
     textDecoration: "none",
     fontWeight: active ? 600 : 500,
+    transition: "all 0.2s ease",
+    fontSize: "14px",
   }),
   contentWrap: { padding: 28, paddingTop: 20, width: "100%" },
   small: { fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 6 },
@@ -102,69 +104,130 @@ export default function Layout({ user, onLogout, children }) {
     <div style={styles.root}>
       {/* SIDEBAR */}
       <aside style={styles.sidebar(collapsed)}>
-        <div style={{ padding: "0 12px", marginBottom: 12 }}>
-          <button
-            onClick={() => setCollapsed((v) => !v)}
-            aria-label="Toggle sidebar"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--sidebar-text, #bfc7cf)",
-              cursor: "pointer",
-              padding: 8,
-              fontSize: 18,
-            }}
-          >
-            ☰
-          </button>
-        </div>
-
-        <div style={{ margin: "6px 12px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              ...styles.brandLogo,
-              width: collapsed ? 32 : "auto",
-              textAlign: collapsed ? "center" : "left",
-            }}
-          >
-            CRMS
+        {/* Sidebar Header */}
+        <div style={{ 
+          padding: collapsed ? "16px 8px" : "20px 16px", 
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          marginBottom: collapsed ? 8 : 12
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: collapsed ? 0 : "8px" }}>
+            <button
+              onClick={() => setCollapsed((v) => !v)}
+              aria-label="Toggle sidebar"
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--sidebar-text, #bfc7cf)",
+                cursor: "pointer",
+                padding: "6px",
+                fontSize: "18px",
+                borderRadius: "6px",
+                transition: "background 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.05)"}
+              onMouseLeave={(e) => e.target.style.background = "transparent"}
+            >
+              ☰
+            </button>
+            {!collapsed && (
+              <div
+                style={{
+                  fontWeight: 800,
+                  color: "#2EA6FF",
+                  fontSize: "22px",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                CRMS
+              </div>
+            )}
           </div>
-          {!collapsed && <div style={{ color: "rgba(255,255,255,0.6)" }}>Crime Record Management System</div>}
+          {!collapsed && (
+            <div style={{ 
+              color: "rgba(255,255,255,0.5)", 
+              fontSize: "11px",
+              lineHeight: "1.4",
+              marginTop: "4px",
+              paddingLeft: "30px"
+            }}>
+              Crime Record Management System
+            </div>
+          )}
         </div>
 
-        <nav style={{ marginTop: 18, paddingBottom: 80 }}>
-          <Link to="/" style={styles.navItem(isActive("/"), collapsed)}>
-            <span>🏠</span>
-            {!collapsed && <div>Dashboard</div>}
+        <nav style={{ padding: collapsed ? "8px 4px" : "8px 12px", paddingBottom: 80, flex: 1 }}>
+          <Link 
+            to="/" 
+            style={styles.navItem(isActive("/"), collapsed)}
+            onMouseEnter={(e) => !isActive("/") && (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+            onMouseLeave={(e) => !isActive("/") && (e.currentTarget.style.background = "transparent")}
+          >
+            <span style={{ fontSize: "18px", width: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>🏠</span>
+            {!collapsed && <span style={{ fontWeight: isActive("/") ? 600 : 500 }}>Dashboard</span>}
           </Link>
 
-          <Link to="/officer/list" style={styles.navItem(isActive("/officer/list"), collapsed)}>
-            <span>📂</span>
-            {!collapsed && <div>Complaints</div>}
+          <Link 
+            to="/officer/list" 
+            style={styles.navItem(isActive("/officer/list"), collapsed)}
+            onMouseEnter={(e) => !isActive("/officer/list") && (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+            onMouseLeave={(e) => !isActive("/officer/list") && (e.currentTarget.style.background = "transparent")}
+          >
+            <span style={{ fontSize: "18px", width: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>📂</span>
+            {!collapsed && <span style={{ fontWeight: isActive("/officer/list") ? 600 : 500 }}>Complaints</span>}
           </Link>
 
-          <Link to="/officer/create" style={styles.navItem(isActive("/officer/create"), collapsed)}>
-            <span>📝</span>
-            {!collapsed && <div>New Complaint</div>}
+          <Link 
+            to="/officer/create" 
+            style={styles.navItem(isActive("/officer/create"), collapsed)}
+            onMouseEnter={(e) => !isActive("/officer/create") && (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+            onMouseLeave={(e) => !isActive("/officer/create") && (e.currentTarget.style.background = "transparent")}
+          >
+            <span style={{ fontSize: "18px", width: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>📝</span>
+            {!collapsed && <span style={{ fontWeight: isActive("/officer/create") ? 600 : 500 }}>New Complaint</span>}
           </Link>
 
-          <Link to="/officer/list" style={styles.navItem(isActive("/officer/list?filter=open"), collapsed)}>
-            <span>🔎</span>
-            {!collapsed && <div>Open</div>}
+          <Link 
+            to="/officer/list" 
+            style={styles.navItem(isActive("/officer/list?filter=open"), collapsed)}
+            onMouseEnter={(e) => !isActive("/officer/list?filter=open") && (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+            onMouseLeave={(e) => !isActive("/officer/list?filter=open") && (e.currentTarget.style.background = "transparent")}
+          >
+            <span style={{ fontSize: "18px", width: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>🔎</span>
+            {!collapsed && <span style={{ fontWeight: isActive("/officer/list?filter=open") ? 600 : 500 }}>Open</span>}
           </Link>
 
           {/* ADMIN SECTION — only render if user.role === 'admin' */}
           {user && user.role === "admin" && (
             <>
-              <div style={{ height: 8 }} />
-              <div style={{ margin: "6px 12px", color: "rgba(255,255,255,0.6)", fontSize: 12 }}>Admin</div>
+              <div style={{ height: collapsed ? 8 : 16, marginTop: collapsed ? 8 : 16, borderTop: collapsed ? "none" : "1px solid rgba(255,255,255,0.05)" }} />
+              {!collapsed && (
+                <div style={{ 
+                  margin: "8px 0 8px 0", 
+                  padding: "0 12px",
+                  color: "rgba(255,255,255,0.4)", 
+                  fontSize: "11px", 
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px"
+                }}>
+                  Admin
+                </div>
+              )}
 
-              <Link to="/admin/users" style={styles.navItem(isActive("/admin/users"), collapsed)}>
-                <span>⚙️</span>
+              <Link 
+                to="/admin/users" 
+                style={styles.navItem(isActive("/admin/users"), collapsed)}
+                onMouseEnter={(e) => !isActive("/admin/users") && (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                onMouseLeave={(e) => !isActive("/admin/users") && (e.currentTarget.style.background = "transparent")}
+              >
+                <span style={{ fontSize: "18px", width: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>⚙️</span>
                 {!collapsed && (
-                  <div>
-                    <div>Manage Users</div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>View / edit / delete users</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: isActive("/admin/users") ? 600 : 500 }}>Manage Users</div>
+                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "2px" }}>View / edit / delete users</div>
                   </div>
                 )}
               </Link>
@@ -172,12 +235,31 @@ export default function Layout({ user, onLogout, children }) {
           )}
         </nav>
 
-        {/* bottom collapsed button area */}
-        <div style={{ position: "absolute", bottom: 18, left: 8, width: "100%" }}>
+        {/* bottom version area */}
+        <div style={{ 
+          position: "absolute", 
+          bottom: 12, 
+          left: 0, 
+          right: 0,
+          padding: collapsed ? "8px 4px" : "8px 16px",
+          borderTop: "1px solid rgba(255,255,255,0.05)"
+        }}>
           {!collapsed ? (
-            <div style={{ padding: "8px 12px", color: "rgba(255,255,255,0.45)" }}>v{appVersion}</div>
+            <div style={{ 
+              color: "rgba(255,255,255,0.35)", 
+              fontSize: "11px",
+              textAlign: "center"
+            }}>
+              v{appVersion}
+            </div>
           ) : (
-            <div style={{ textAlign: "center", color: "rgba(255,255,255,0.45)" }}>v1</div>
+            <div style={{ 
+              textAlign: "center", 
+              color: "rgba(255,255,255,0.35)",
+              fontSize: "10px"
+            }}>
+              v{appVersion.split('.')[0]}
+            </div>
           )}
         </div>
       </aside>

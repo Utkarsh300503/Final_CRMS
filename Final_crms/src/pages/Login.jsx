@@ -33,49 +33,53 @@ export default function Login() {
   };
 
   return (
-    <div style={{ maxWidth: "420px", margin: "48px auto", color: "#eee" }}>
-      <h2>Login</h2>
+    <div style={{ 
+      maxWidth: "420px", 
+      margin: "80px auto", 
+      padding: "40px",
+      background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08))",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: "16px",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.4)"
+    }}>
+      <h2 style={{ marginBottom: "24px", textAlign: "center" }}>Login</h2>
 
       {error && (
-        <div style={{ color: "crimson", marginBottom: 12 }}>
+        <div className="error" style={{ marginBottom: "16px" }}>
           {error}
         </div>
       )}
 
       <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: "16px" }}>
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
             type="email"
-            placeholder="Email"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ width: "100%", padding: 8 }}
           />
         </div>
 
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: "20px" }}>
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: "100%", padding: 8 }}
           />
         </div>
 
         <button
           type="submit"
           disabled={loadingBtn}
-          style={{
-            padding: "8px 16px",
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            background: loadingBtn ? "#555" : "#111",
-            color: "#fff",
-            cursor: loadingBtn ? "not-allowed" : "pointer",
-          }}
+          className="primary"
+          style={{ width: "100%" }}
         >
           {loadingBtn ? "Logging in..." : "Login"}
         </button>

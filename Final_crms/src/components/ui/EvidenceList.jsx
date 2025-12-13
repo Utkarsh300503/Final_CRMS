@@ -60,25 +60,38 @@ export default function EvidenceList({ complaintId, evidence = [], onDeleted }) 
   }
 
   return (
-    <div style={{ marginTop: 12 }}>
-      <h4>Evidence</h4>
-      {error && <div style={{ color: "salmon" }}>{error}</div>}
+    <div style={{ marginTop: "12px" }}>
+      <h4 style={{ marginBottom: "16px" }}>Evidence</h4>
+      {error && <div className="error" style={{ marginBottom: "12px" }}>{error}</div>}
       {!evidence || evidence.length === 0 ? (
-        <div>No evidence attached.</div>
+        <div style={{ color: "var(--muted, #a9b1b8)", padding: "20px", textAlign: "center" }}>
+          No evidence attached.
+        </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: "16px" }}>
           {evidence.map((ev) => (
-            <div key={ev.id} style={{ padding: 12, borderRadius: 8, background: "var(--panel,#141414)" }}>
-              {renderPreview(ev)}
-              <div style={{ marginTop: 8, fontSize: 12, color: "var(--muted,#aaa)" }}>
+            <div key={ev.id} className="card" style={{ padding: "16px", margin: 0 }}>
+              <div style={{ marginBottom: "12px" }}>
+                {renderPreview(ev)}
+              </div>
+              <div style={{ marginTop: "8px", fontSize: "12px", color: "var(--muted, #a9b1b8)", marginBottom: "12px" }}>
                 Uploaded by: {ev.uploadedByName || ev.uploadedBy}
               </div>
-              <div style={{ marginTop: 6, display: "flex", gap: 8 }}>
-                <a href={ev.url} target="_blank" rel="noreferrer" style={{ fontSize: 13 }}>Open</a>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                {ev.url && (
+                  <a href={ev.url} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ fontSize: "13px", padding: "6px 12px", flex: 1 }}>
+                    Open
+                  </a>
+                )}
                 {/* allow delete if user is assigned officer or admin; server rules will also enforce */}
                 {(user && (user.role === "admin" || user.uid === ev.uploadedBy)) && (
-                  <button disabled={deleting} onClick={() => handleDelete(ev)} style={{ marginLeft: "auto" }}>
-                    Delete
+                  <button 
+                    disabled={deleting} 
+                    onClick={() => handleDelete(ev)} 
+                    className="danger"
+                    style={{ fontSize: "13px", padding: "6px 12px" }}
+                  >
+                    {deleting ? "Deleting…" : "Delete"}
                   </button>
                 )}
               </div>

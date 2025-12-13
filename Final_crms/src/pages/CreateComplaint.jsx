@@ -108,57 +108,86 @@ export default function CreateComplaint() {
   }
 
   return (
-    <div style={{ padding: 20, maxWidth: 900 }}>
-      <h2>Create Complaint</h2>
+    <div style={{ maxWidth: "800px" }}>
+      <div className="page-header">
+        <h2>Create Complaint</h2>
+        <p style={{ color: "var(--muted, #a9b1b8)", marginTop: "8px" }}>
+          File a new complaint or incident report
+        </p>
+      </div>
 
-      {error && <div style={{ color: "salmon", marginBottom: 12 }}>{error}</div>}
+      <div className="card">
+        {error && <div className="error" style={{ marginBottom: "16px" }}>{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 12 }}>
-          <label>Title</label>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Brief title"
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "20px" }}>
+            <label htmlFor="title">Title *</label>
+            <input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a brief, descriptive title"
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: 12 }}>
-          <label>Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Detailed description"
-            rows={6}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-            required
-          />
-        </div>
+          <div style={{ marginBottom: "20px" }}>
+            <label htmlFor="description">Description *</label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Provide detailed information about the complaint..."
+              rows={8}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: 12 }}>
-          <label>Attach images (max 5) — photos, screenshots</label>
-          <input type="file" accept="image/*" multiple onChange={handleFiles} style={{ display: "block", marginTop: 6 }} />
-          {files.length > 0 && (
-            <div style={{ marginTop: 8 }}>
-              <strong>Files:</strong> {files.map((f) => f.name).join(", ")}
+          <div style={{ marginBottom: "24px" }}>
+            <label htmlFor="files">Attach Images (max 5)</label>
+            <input 
+              id="files"
+              type="file" 
+              accept="image/*" 
+              multiple 
+              onChange={handleFiles}
+              style={{ marginTop: "6px" }}
+            />
+            {files.length > 0 && (
+              <div style={{ marginTop: "12px", padding: "12px", background: "rgba(255,255,255,0.03)", borderRadius: "8px" }}>
+                <strong style={{ display: "block", marginBottom: "8px" }}>Selected Files:</strong>
+                <ul style={{ margin: 0, paddingLeft: "20px", color: "var(--muted, #a9b1b8)" }}>
+                  {files.map((f, idx) => (
+                    <li key={idx}>{f.name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {loading && (
+            <div style={{ marginBottom: "20px" }}>
+              <div style={{ marginBottom: "8px", fontSize: "14px", color: "var(--muted, #a9b1b8)" }}>
+                Uploading... {uploadProgress}%
+              </div>
+              <progress value={uploadProgress} max="100" />
             </div>
           )}
-        </div>
 
-        <div style={{ marginTop: 14 }}>
-          <button type="submit" disabled={loading}>
-            {loading ? `Uploading... ${uploadProgress}%` : "Create complaint"}
-          </button>
-        </div>
-      </form>
-
-      {loading && (
-        <div style={{ marginTop: 12 }}>
-          <progress value={uploadProgress} max="100" style={{ width: "100%" }} />
-        </div>
-      )}
+          <div style={{ display: "flex", gap: "12px" }}>
+            <button type="submit" disabled={loading} className="primary">
+              {loading ? `Uploading... ${uploadProgress}%` : "Create Complaint"}
+            </button>
+            <button 
+              type="button" 
+              onClick={() => nav("/officer/list")}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -223,190 +223,215 @@ export default function ComplaintDetails() {
   if (!c) return null;
 
   return (
-    <div style={{ padding: 24, display: "grid", gridTemplateColumns: "1fr 360px", gap: 24 }}>
-      <div>
-        <button onClick={() => nav(-1)} style={{ marginBottom: 18 }}>⬅ Back</button>
-
-        <h2>{c.title || "Untitled complaint"}</h2>
-
-        <div style={{ marginTop: 12 }}>
-          <p><strong>Description:</strong></p>
-          <p style={{ color: "var(--muted, #aaa)" }}>{c.description}</p>
-
-          <p><strong>Status:</strong> {c.status}</p>
-          <p><strong>Created By:</strong> {c.createdByName || c.createdBy}</p>
-          <p><strong>Assigned Officer:</strong> {c.assignedOfficerName || c.assignedOfficer}</p>
-        </div>
-
-        <hr style={{ margin: "18px 0", borderColor: "rgba(255,255,255,0.04)" }} />
-
-        {/* EVIDENCE LIST */}
-        <section>
-          <h3>Evidence</h3>
-
-          {(!c.evidence || c.evidence.length === 0) && (
-            <div style={{ color: "var(--muted,#aaa)" }}>
-              No evidence attached yet.
-            </div>
-          )}
-
-          <ul style={{ listStyle: "none", paddingLeft: 0, marginTop: 12 }}>
-            {(c.evidence || []).map((ev) => (
-              <li key={ev.id} style={{
-                padding: 12,
-                marginBottom: 10,
-                borderRadius: 8,
-                background: "rgba(255,255,255,0.02)"
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontWeight: 600 }}>{ev.filename || ev.id}</div>
-                    <div style={{ color: "var(--muted,#aaa)", fontSize: 13 }}>
-                      {ev.uploaderName || ev.uploaderUid} • {ev.mimeType || "—"} {ev.size ? `• ${Math.round(ev.size/1024)} KB` : ""}
-                    </div>
-                    <div style={{ color: "var(--muted,#aaa)", fontSize: 12 }}>
-                      {ev.storageEnabled ? "File stored" : "Storage not enabled — placeholder metadata"}
-                    </div>
-                    {ev.note && <div style={{ color: "salmon", marginTop: 6 }}>{ev.note}</div>}
-                  </div>
-
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {ev.storageEnabled && ev.url ? (
-                      <a href={ev.url} target="_blank" rel="noreferrer">
-                        View
-                      </a>
-                    ) : (
-                      <button
-                        onClick={() => alert("Storage is disabled. Enable Firebase Storage (Blaze) to view files.")}
-                        style={{ padding: "6px 10px", borderRadius: 6 }}
-                      >
-                        Preview
-                      </button>
-                    )}
-
-                    {user.role === "admin" && (
-                      <button
-                        onClick={() => handleRemoveEvidence(ev)}
-                        style={{ padding: "6px 10px", borderRadius: 6, background: "transparent", border: "1px solid rgba(255,0,0,0.08)" }}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <hr style={{ margin: "18px 0", borderColor: "rgba(255,255,255,0.04)" }} />
-
-        {/* Timeline */}
-        <section>
-          <h3>Timeline</h3>
-          {(c.timeline && c.timeline.length > 0) ? (
-            <ul>
-              {c.timeline.map((t, idx) => (
-                <li key={idx}>
-                  <div style={{ fontWeight: 600 }}>{t.summary}</div>
-                  <div style={{ fontSize: 13, color: "var(--muted,#aaa)" }}>{t.byName || t.by || ""} • {new Date(t.ts?.toDate ? t.ts.toDate() : t.ts || Date.now()).toLocaleString()}</div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div style={{ color: "var(--muted,#aaa)" }}>No updates yet</div>
-          )}
-        </section>
+    <div>
+      <div style={{ marginBottom: "20px" }}>
+        <button onClick={() => nav(-1)} style={{ marginBottom: "0" }}>
+          ← Back
+        </button>
       </div>
 
-      {/* Right panel */}
-      <aside>
-        <div style={{
-          padding: 18,
-          borderRadius: 10,
-          background: "var(--panel,#111)",
-          boxShadow: "0 6px 14px rgba(0,0,0,0.35)"
-        }}>
-          <h4 style={{ marginTop: 0 }}>Update Complaint</h4>
-
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: "block", fontSize: 13, marginBottom: 6 }}>Status</label>
-            <select
-              value={c.status}
-              onChange={(e) => updateStatus(e.target.value)}
-              style={{ width: "100%", padding: 8, borderRadius: 6 }}
-            >
-              <option value="open">Open</option>
-              <option value="in-progress">In Progress</option>
-              <option value="resolved">Resolved</option>
-            </select>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: "24px" }}>
+        <div>
+          <div className="page-header" style={{ marginBottom: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
+              <h2 style={{ margin: 0 }}>{c.title || "Untitled complaint"}</h2>
+              <span className={`status-pill status-${c.status || "open"}`}>
+                {c.status || "open"}
+              </span>
+            </div>
           </div>
 
-          {/* --------- Evidence upload UI --------- */}
-          <div style={{ marginTop: 10 }}>
-            <h4 style={{ marginBottom: 8 }}>Attach Evidence</h4>
+          <div className="card" style={{ marginBottom: "24px" }}>
+            <h3 style={{ marginTop: 0, marginBottom: "16px" }}>Description</h3>
+            <p style={{ color: "var(--muted, #a9b1b8)", lineHeight: "1.6", marginBottom: "20px" }}>{c.description}</p>
 
-            <div style={{ marginBottom: 8 }}>
-              <button onClick={onChooseFile} style={{ padding: "8px 12px", borderRadius: 6 }}>
-                Choose file…
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleFileSelect}
-                style={{ display: "none" }}
-                accept="image/*,video/*,application/pdf"
-              />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div>
+                <strong style={{ display: "block", marginBottom: "4px", fontSize: "13px", color: "var(--muted, #a9b1b8)" }}>Status</strong>
+                <span style={{ textTransform: "capitalize" }}>{c.status}</span>
+              </div>
+              <div>
+                <strong style={{ display: "block", marginBottom: "4px", fontSize: "13px", color: "var(--muted, #a9b1b8)" }}>Created By</strong>
+                <span>{c.createdByName || c.createdBy}</span>
+              </div>
+              <div>
+                <strong style={{ display: "block", marginBottom: "4px", fontSize: "13px", color: "var(--muted, #a9b1b8)" }}>Assigned Officer</strong>
+                <span>{c.assignedOfficerName || c.assignedOfficer}</span>
+              </div>
             </div>
+          </div>
 
-            {previewUrl && (
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 13, marginBottom: 6 }}>Preview</div>
-                <div style={{ borderRadius: 8, overflow: "hidden", marginBottom: 6 }}>
-                  {selectedFile && selectedFile.type?.startsWith("image/") ? (
-                    <img src={previewUrl} alt="preview" style={{ width: "100%", height: "160px", objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ width: "100%", height: 160, display: "flex", alignItems: "center", justifyContent: "center", background: "#0f0f0f" }}>
-                      <div style={{ color: "var(--muted,#aaa)" }}>{selectedFile?.name}</div>
+          {/* EVIDENCE LIST */}
+          <section className="card" style={{ marginBottom: "24px" }}>
+            <h3 style={{ marginTop: 0, marginBottom: "16px" }}>Evidence</h3>
+
+            {(!c.evidence || c.evidence.length === 0) && (
+              <div style={{ color: "var(--muted, #a9b1b8)", padding: "20px", textAlign: "center" }}>
+                No evidence attached yet.
+              </div>
+            )}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {(c.evidence || []).map((ev) => (
+                <div key={ev.id} className="card" style={{ padding: "16px", margin: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, marginBottom: "8px" }}>{ev.filename || ev.id}</div>
+                      <div style={{ color: "var(--muted, #a9b1b8)", fontSize: "13px", marginBottom: "4px" }}>
+                        {ev.uploaderName || ev.uploaderUid} • {ev.mimeType || "—"} {ev.size ? `• ${Math.round(ev.size/1024)} KB` : ""}
+                      </div>
+                      <div style={{ color: "var(--muted, #a9b1b8)", fontSize: "12px" }}>
+                        {ev.storageEnabled ? "✓ File stored" : "⚠ Storage not enabled — placeholder metadata"}
+                      </div>
+                      {ev.note && <div style={{ color: "#ff6b6b", marginTop: "8px", fontSize: "12px" }}>{ev.note}</div>}
                     </div>
-                  )}
+
+                    <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                      {ev.storageEnabled && ev.url ? (
+                        <a href={ev.url} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ padding: "6px 12px", fontSize: "13px" }}>
+                          View
+                        </a>
+                      ) : (
+                        <button
+                          onClick={() => alert("Storage is disabled. Enable Firebase Storage (Blaze) to view files.")}
+                          style={{ padding: "6px 12px", fontSize: "13px" }}
+                        >
+                          Preview
+                        </button>
+                      )}
+
+                      {user.role === "admin" && (
+                        <button
+                          onClick={() => handleRemoveEvidence(ev)}
+                          className="danger"
+                          style={{ padding: "6px 12px", fontSize: "13px" }}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {evidenceError && <div style={{ color: "salmon", marginBottom: 8 }}>{evidenceError}</div>}
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={handleUpload} disabled={uploading || !selectedFile} style={{ padding: "8px 12px", borderRadius: 6 }}>
-                {uploading ? "Uploading…" : "Upload (mock)"}
-              </button>
-
-              <button onClick={() => { setSelectedFile(null); if (previewUrl) { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); } }} style={{ padding: "8px 12px", borderRadius: 6 }}>
-                Cancel
-              </button>
+              ))}
             </div>
+          </section>
 
-            <div style={{ marginTop: 10, fontSize: 12, color: "var(--muted,#aaa)" }}>
-              Note: Actual file storage is disabled in this project (Firebase Storage requires Blaze plan).
-              This UI stores metadata only. Toggle <button onClick={() => setShowUploadHelp(s => !s)} style={{ background: "transparent", color: "#6bcaff", border: "none", cursor: "pointer" }}>help</button> for instructions to enable.
-            </div>
-
-            {showUploadHelp && (
-              <div style={{ marginTop: 8, background: "#111", padding: 10, borderRadius: 6 }}>
-                <div style={{ color: "var(--muted,#aaa)", fontSize: 13 }}>
-                  To enable real uploads:
-                  <ol style={{ marginTop: 8 }}>
-                    <li>Upgrade Firebase project to the Blaze plan.</li>
-                    <li>Enable Cloud Storage and set proper Storage rules.</li>
-                    <li>Uncomment the firebase/storage code in this file and import the methods.</li>
-                    <li>Test real uploads and optionally store download URL in evidence record.</li>
-                  </ol>
-                </div>
+          {/* Timeline */}
+          <section className="card">
+            <h3 style={{ marginTop: 0, marginBottom: "16px" }}>Timeline</h3>
+            {(c.timeline && c.timeline.length > 0) ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {c.timeline.map((t, idx) => (
+                  <div key={idx} style={{ padding: "12px", background: "rgba(255,255,255,0.02)", borderRadius: "8px" }}>
+                    <div style={{ fontWeight: 600, marginBottom: "6px" }}>{t.summary}</div>
+                    <div style={{ fontSize: "13px", color: "var(--muted, #a9b1b8)" }}>
+                      {t.byName || t.by || ""} • {new Date(t.ts?.toDate ? t.ts.toDate() : t.ts || Date.now()).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
               </div>
+            ) : (
+              <div style={{ color: "var(--muted, #a9b1b8)", padding: "20px", textAlign: "center" }}>No updates yet</div>
             )}
-          </div>
+          </section>
         </div>
-      </aside>
+
+        {/* Right panel */}
+        <aside>
+          <div className="card" style={{ position: "sticky", top: "80px" }}>
+            <h4 style={{ marginTop: 0, marginBottom: "20px" }}>Update Complaint</h4>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label htmlFor="status-select">Status</label>
+              <select
+                id="status-select"
+                value={c.status}
+                onChange={(e) => updateStatus(e.target.value)}
+                disabled={updating}
+              >
+                <option value="open">Open</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+
+            {/* --------- Evidence upload UI --------- */}
+            <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <h4 style={{ marginBottom: "12px" }}>Attach Evidence</h4>
+
+              <div style={{ marginBottom: "12px" }}>
+                <button onClick={onChooseFile} type="button">
+                  Choose file…
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileSelect}
+                  style={{ display: "none" }}
+                  accept="image/*,video/*,application/pdf"
+                />
+              </div>
+
+              {previewUrl && (
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ fontSize: "13px", marginBottom: "8px", color: "var(--muted, #a9b1b8)" }}>Preview</div>
+                  <div style={{ borderRadius: "8px", overflow: "hidden", marginBottom: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    {selectedFile && selectedFile.type?.startsWith("image/") ? (
+                      <img src={previewUrl} alt="preview" style={{ width: "100%", height: "160px", objectFit: "cover", display: "block" }} />
+                    ) : (
+                      <div style={{ width: "100%", height: "160px", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.02)" }}>
+                        <div style={{ color: "var(--muted, #a9b1b8)" }}>{selectedFile?.name}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {evidenceError && <div className="error" style={{ marginBottom: "12px", fontSize: "12px" }}>{evidenceError}</div>}
+
+              <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+                <button onClick={handleUpload} disabled={uploading || !selectedFile} className="primary" style={{ flex: 1 }}>
+                  {uploading ? "Uploading…" : "Upload (mock)"}
+                </button>
+
+                {selectedFile && (
+                  <button 
+                    onClick={() => { setSelectedFile(null); if (previewUrl) { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); } }} 
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+
+              <div style={{ marginTop: "12px", fontSize: "12px", color: "var(--muted, #a9b1b8)", lineHeight: "1.5" }}>
+                Note: Actual file storage is disabled in this project (Firebase Storage requires Blaze plan).
+                This UI stores metadata only.{" "}
+                <button 
+                  onClick={() => setShowUploadHelp(s => !s)} 
+                  style={{ background: "transparent", color: "#6bcaff", border: "none", cursor: "pointer", textDecoration: "underline", padding: 0, fontSize: "12px" }}
+                >
+                  {showUploadHelp ? "Hide help" : "Show help"}
+                </button>
+              </div>
+
+              {showUploadHelp && (
+                <div style={{ marginTop: "12px", background: "rgba(255,255,255,0.03)", padding: "12px", borderRadius: "8px" }}>
+                  <div style={{ color: "var(--muted, #a9b1b8)", fontSize: "12px" }}>
+                    <strong style={{ display: "block", marginBottom: "8px", color: "var(--text, #e6e6e6)" }}>To enable real uploads:</strong>
+                    <ol style={{ margin: 0, paddingLeft: "20px", lineHeight: "1.8" }}>
+                      <li>Upgrade Firebase project to the Blaze plan.</li>
+                      <li>Enable Cloud Storage and set proper Storage rules.</li>
+                      <li>Uncomment the firebase/storage code in this file and import the methods.</li>
+                      <li>Test real uploads and optionally store download URL in evidence record.</li>
+                    </ol>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

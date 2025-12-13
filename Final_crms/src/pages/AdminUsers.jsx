@@ -76,48 +76,58 @@ export default function AdminUsers() {
   if (!user) return null; // shouldn't happen due to ProtectedRoute
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
-        <h1>Admin — User Management</h1>
-        <div style={{ color: "rgba(255,255,255,0.6)" }}>Signed in as: <strong>{user.name || user.email}</strong></div>
+    <div>
+      <div className="page-header" style={{ marginBottom: "24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", flexWrap: "wrap" }}>
+          <h1>Admin — User Management</h1>
+          <div style={{ color: "var(--muted, #a9b1b8)", fontSize: "14px" }}>
+            Signed in as: <strong>{user.name || user.email}</strong>
+          </div>
+        </div>
       </div>
 
-      {error && <div style={{ color: "salmon", marginBottom: 12 }}>{error}</div>}
+      {error && <div className="error" style={{ marginBottom: "16px" }}>{error}</div>}
 
       {loading ? (
-        <div>Loading users…</div>
+        <div className="card" style={{ textAlign: "center", padding: "40px" }}>
+          <div className="loading">Loading users…</div>
+        </div>
       ) : users.length === 0 ? (
-        <div>No users found</div>
+        <div className="card" style={{ textAlign: "center", padding: "40px", color: "var(--muted, #a9b1b8)" }}>
+          No users found
+        </div>
       ) : (
-        <div style={{ maxWidth: 900 }}>
+        <div style={{ maxWidth: "1000px" }}>
           {users.map((u) => (
             <div
               key={u.uid}
+              className="card"
               style={{
-                background: "rgba(255,255,255,0.02)",
-                padding: 16,
-                marginBottom: 12,
-                borderRadius: 8,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                gap: 12,
+                gap: "16px",
+                flexWrap: "wrap",
               }}
             >
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700 }}>{u.name || u.email || u.uid}</div>
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{u.email || u.uid}</div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 6 }}>
+              <div style={{ flex: "1 1 300px" }}>
+                <div style={{ fontWeight: 700, fontSize: "16px", marginBottom: "6px" }}>
+                  {u.name || u.email || u.uid}
+                </div>
+                <div style={{ fontSize: "13px", color: "var(--muted, #a9b1b8)", marginBottom: "4px" }}>
+                  {u.email || u.uid}
+                </div>
+                <div style={{ fontSize: "12px", color: "var(--muted, #a9b1b8)" }}>
                   Created: {u.createdAt && u.createdAt.toDate ? u.createdAt.toDate().toLocaleString() : u.createdAt || "—"}
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
                 <select
                   value={u.role || "user"}
                   onChange={(e) => handleRoleChange(u.uid, e.target.value)}
                   disabled={savingUid === u.uid || u.uid === user.uid}
-                  style={{ padding: "8px 10px", borderRadius: 6, background: "transparent", border: "1px solid rgba(255,255,255,0.06)" }}
+                  style={{ minWidth: "120px" }}
                 >
                   {roleOptions.map((r) => (
                     <option key={r} value={r}>
@@ -129,7 +139,8 @@ export default function AdminUsers() {
                 <button
                   onClick={() => nav(`/complaint?createdBy=${u.uid}`)}
                   title="Show complaints by this user"
-                  style={{ padding: "8px 10px", borderRadius: 6 }}
+                  className="btn-secondary"
+                  style={{ fontSize: "13px", padding: "8px 12px" }}
                 >
                   View Complaints
                 </button>
@@ -137,13 +148,8 @@ export default function AdminUsers() {
                 <button
                   onClick={() => handleDelete(u.uid)}
                   disabled={deletingUid === u.uid || u.uid === user.uid}
-                  style={{
-                    padding: "8px 10px",
-                    borderRadius: 6,
-                    border: "1px solid rgba(255,90,90,0.16)",
-                    background: "transparent",
-                    color: "salmon",
-                  }}
+                  className="danger"
+                  style={{ fontSize: "13px", padding: "8px 12px" }}
                 >
                   {deletingUid === u.uid ? "Deleting…" : "Delete"}
                 </button>

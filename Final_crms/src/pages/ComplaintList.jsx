@@ -263,95 +263,124 @@ export default function ComplaintList() {
   if (!user) return null;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Complaints</h2>
+    <div>
+      <div className="page-header">
+        <h2>Complaints</h2>
+      </div>
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 18 }}>
-        <input
-          placeholder="Search title or description..."
-          value={textQuery}
-          onChange={(e) => setTextQuery(e.target.value)}
-          style={{ padding: 8, width: 320, borderRadius: 6 }}
-        />
+      <div className="card" style={{ marginBottom: "24px" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
+          <div style={{ flex: "1 1 300px", minWidth: "250px" }}>
+            <label htmlFor="search">Search</label>
+            <input
+              id="search"
+              type="text"
+              placeholder="Search title or description..."
+              value={textQuery}
+              onChange={(e) => setTextQuery(e.target.value)}
+            />
+          </div>
 
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ padding: 8, borderRadius: 6 }}>
-          <option value="all">All statuses</option>
-          <option value="open">Open</option>
-          <option value="in-progress">In Progress</option>
-          <option value="resolved">Resolved</option>
-        </select>
+          <div style={{ flex: "0 1 180px" }}>
+            <label htmlFor="status">Status</label>
+            <select id="status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <option value="all">All statuses</option>
+              <option value="open">Open</option>
+              <option value="in-progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
 
-        <select
-          value={officerFilter}
-          onChange={(e) => setOfficerFilter(e.target.value)}
-          style={{ padding: 8, borderRadius: 6 }}
-        >
-          <option value="all">All officers</option>
-          <option value="me">Assigned to me</option>
-          {officersLoading ? (
-            <option disabled>Loading officers…</option>
-          ) : (
-            officers.map((o) => (
-              <option key={o.uid} value={o.uid}>
-                {o.name || o.email || o.uid}
-              </option>
-            ))
-          )}
-        </select>
+          <div style={{ flex: "0 1 200px" }}>
+            <label htmlFor="officer">Officer</label>
+            <select
+              id="officer"
+              value={officerFilter}
+              onChange={(e) => setOfficerFilter(e.target.value)}
+            >
+              <option value="all">All officers</option>
+              <option value="me">Assigned to me</option>
+              {officersLoading ? (
+                <option disabled>Loading officers…</option>
+              ) : (
+                officers.map((o) => (
+                  <option key={o.uid} value={o.uid}>
+                    {o.name || o.email || o.uid}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
 
-        <button onClick={() => { setTextQuery(""); setStatusFilter("all"); setOfficerFilter("all"); }} style={{ padding: "8px 10px", borderRadius: 6 }}>
-          Reset
-        </button>
+          <button 
+            onClick={() => { setTextQuery(""); setStatusFilter("all"); setOfficerFilter("all"); }}
+            style={{ height: "fit-content", marginTop: "20px" }}
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
       {/* diagnostics */}
       {diagnosticsUI}
 
       {/* error */}
-      {error && <div style={{ color: "salmon", marginBottom: 12 }}>{error}</div>}
+      {error && <div className="error" style={{ marginBottom: "16px" }}>{error}</div>}
 
       {/* results */}
-      {complaints.length === 0 && !loading && <div>No complaints found</div>}
+      {complaints.length === 0 && !loading && (
+        <div className="card" style={{ textAlign: "center", padding: "40px", color: "var(--muted, #a9b1b8)" }}>
+          No complaints found
+        </div>
+      )}
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {complaints.map((c) => (
-          <li
+          <div
             key={c.id}
-            style={{
-              padding: 14,
-              borderRadius: 10,
-              background: "rgba(255,255,255,0.02)",
-              marginBottom: 12,
-              cursor: "pointer"
-            }}
+            className="card"
+            style={{ cursor: "pointer" }}
             onClick={() => nav(`/complaint/${c.id}`)}
           >
-            <strong style={{ display: "block", fontSize: 16 }}>{c.title}</strong>
-            <div style={{ color: "var(--muted,#aaa)" }}>{c.description && c.description.slice(0, 160)}</div>
-            <div style={{ marginTop: 8, fontSize: 13 }}>
-              <span>Status: <strong>{c.status}</strong></span>{" • "}
-              <span>By: {c.createdByName || c.createdBy}</span>{" • "}
-              <span>Assigned: {c.assignedOfficerName || c.assignedOfficer}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "12px" }}>
+              <h3 style={{ margin: 0, fontSize: "18px", flex: 1 }}>{c.title}</h3>
+              <span className={`status-pill status-${c.status || "open"}`}>
+                {c.status || "open"}
+              </span>
             </div>
-          </li>
+            <p style={{ color: "var(--muted, #a9b1b8)", marginBottom: "12px", lineHeight: "1.5" }}>
+              {c.description && c.description.slice(0, 200)}
+              {c.description && c.description.length > 200 && "..."}
+            </p>
+            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", fontSize: "13px", color: "var(--muted, #a9b1b8)" }}>
+              <span><strong style={{ color: "var(--text, #e6e6e6)" }}>By:</strong> {c.createdByName || c.createdBy}</span>
+              <span><strong style={{ color: "var(--text, #e6e6e6)" }}>Assigned:</strong> {c.assignedOfficerName || c.assignedOfficer}</span>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
 
-      {loading && <div>Loading…</div>}
+      {loading && (
+        <div className="card" style={{ textAlign: "center", padding: "20px" }}>
+          <div className="loading">Loading…</div>
+        </div>
+      )}
 
       {!loading && hasMore && (
-        <div style={{ marginTop: 12 }}>
-          <button onClick={handleLoadMore} style={{ padding: "8px 12px", borderRadius: 6 }}>
-            Load more
+        <div style={{ marginTop: "20px", textAlign: "center" }}>
+          <button onClick={handleLoadMore} className="primary">
+            Load More
           </button>
         </div>
       )}
 
       {/* small diagnostics footer */}
-      <div style={{ marginTop: 18, color: "var(--muted,#777)", fontSize: 13 }}>
-        Showing {complaints.length} items. Page size {PAGE_SIZE}. Search is client-side for title/description.
-      </div>
+      {complaints.length > 0 && (
+        <div style={{ marginTop: "24px", color: "var(--muted, #a9b1b8)", fontSize: "13px", textAlign: "center" }}>
+          Showing {complaints.length} items. Page size {PAGE_SIZE}. Search is client-side for title/description.
+        </div>
+      )}
     </div>
   );
 }

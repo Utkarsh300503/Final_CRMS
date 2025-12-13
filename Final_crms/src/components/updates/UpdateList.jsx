@@ -33,25 +33,34 @@ export default function UpdateList({ complaintId }) {
     return () => unsub();
   }, [complaintId]);
 
-  if (loading) return <div>Loading timeline…</div>;
-  if (!updates.length) return <div>No updates yet.</div>;
+  if (loading) return <div className="loading" style={{ padding: "20px" }}>Loading timeline…</div>;
+  if (!updates.length) return <div style={{ color: "var(--muted, #a9b1b8)", padding: "20px", textAlign: "center" }}>No updates yet.</div>;
 
   return (
-    <div style={{ marginTop: 12 }}>
-      <h4>Timeline</h4>
-      <ul style={{ listStyle: "none", padding: 0 }}>
+    <div style={{ marginTop: "20px" }}>
+      <h4 style={{ marginBottom: "16px" }}>Timeline</h4>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {updates.map((u) => (
-          <li key={u.id} style={{ marginBottom: 12, padding: 12, borderRadius: 8, background: "rgba(255,255,255,0.02)" }}>
-            <div style={{ fontSize: 14, color: "#eee" }}>{u.text}</div>
-            <div style={{ fontSize: 12, color: "#aaa", marginTop: 6 }}>
-              {u.status ? <strong>Status:</strong> : null}{" "}
-              {u.status ? <span style={{ color: "#fff" }}>{u.status}</span> : null}
-              <span style={{ marginLeft: 8 }}>{u.authorName || u.author || "Unknown"}</span>
-              <span style={{ marginLeft: 12 }}>{u.createdAt?.toDate ? u.createdAt.toDate().toLocaleString() : u.createdAt}</span>
+          <div key={u.id} className="card" style={{ padding: "16px", margin: 0 }}>
+            <div style={{ fontSize: "14px", color: "var(--text, #e6e6e6)", lineHeight: "1.6", marginBottom: "12px" }}>
+              {u.text}
             </div>
-          </li>
+            <div style={{ fontSize: "12px", color: "var(--muted, #a9b1b8)", display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
+              {u.status && (
+                <span>
+                  <strong>Status:</strong>{" "}
+                  <span className={`status-pill status-${u.status}`} style={{ marginLeft: "4px" }}>
+                    {u.status}
+                  </span>
+                </span>
+              )}
+              <span>{u.authorName || u.author || "Unknown"}</span>
+              <span>•</span>
+              <span>{u.createdAt?.toDate ? u.createdAt.toDate().toLocaleString() : u.createdAt}</span>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

@@ -75,54 +75,50 @@ export default function ReassignPanel({ complaintId, currentAssignedUid, adminUs
   }
 
   return (
-    <div style={{
-      padding: 12,
-      borderRadius: 8,
-      background: "var(--panel, #141414)",
-      boxShadow: "0 6px 14px rgba(0,0,0,0.35)"
-    }}>
-      <h4 style={{ marginTop: 0 }}>Reassign Complaint</h4>
+    <div className="card">
+      <h4 style={{ marginTop: 0, marginBottom: "16px" }}>Reassign Complaint</h4>
 
-      {fetching && <div>Loading officers…</div>}
-      {error && <div style={{ color: "salmon", marginBottom: 8 }}>{error}</div>}
+      {fetching && <div className="loading" style={{ marginBottom: "16px" }}>Loading officers…</div>}
+      {error && <div className="error" style={{ marginBottom: "12px" }}>{error}</div>}
 
       {!fetching && (
         <>
           {officers.length === 0 ? (
-            <div style={{ marginBottom: 8 }}>No officers found. Make sure users with role "officer" exist.</div>
+            <div style={{ marginBottom: "16px", color: "var(--muted, #a9b1b8)", padding: "12px", background: "rgba(255,255,255,0.02)", borderRadius: "8px" }}>
+              No officers found. Make sure users with role "officer" exist.
+            </div>
           ) : (
-            <select
-              aria-label="Select officer to assign"
-              value={selected}
-              onChange={(e) => setSelected(e.target.value)}
-              style={{ width: "100%", padding: 8, marginBottom: 8, borderRadius: 6 }}
-            >
-              <option value="">— select officer —</option>
-              {officers.map((o) => (
-                <option key={o.uid} value={o.uid}>
-                  {o.name || o.email || o.uid}
-                </option>
-              ))}
-            </select>
+            <div style={{ marginBottom: "16px" }}>
+              <label htmlFor="officer-select">Select Officer</label>
+              <select
+                id="officer-select"
+                aria-label="Select officer to assign"
+                value={selected}
+                onChange={(e) => setSelected(e.target.value)}
+              >
+                <option value="">— select officer —</option>
+                {officers.map((o) => (
+                  <option key={o.uid} value={o.uid}>
+                    {o.name || o.email || o.uid}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
 
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <button
               onClick={handleAssign}
               disabled={loading || !selected || selected === currentAssignedUid}
-              style={{
-                padding: "8px 12px",
-                borderRadius: 6,
-                background: (loading || !selected || selected === currentAssignedUid) ? "rgba(255,255,255,0.08)" : "",
-                cursor: (loading || !selected || selected === currentAssignedUid) ? "not-allowed" : "pointer"
-              }}
+              className="primary"
+              style={{ flex: 1 }}
             >
               {loading ? "Assigning…" : "Assign"}
             </button>
 
             <button
               onClick={() => onDone && onDone(null)}
-              style={{ padding: "8px 12px", borderRadius: 6, background: "transparent", border: "1px solid rgba(255,255,255,0.04)" }}
+              type="button"
             >
               Cancel
             </button>

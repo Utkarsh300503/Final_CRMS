@@ -47,16 +47,24 @@ export default function EvidenceUploader({ complaintId, onUploaded }) {
   }
 
   return (
-    <div style={{ marginTop: 8 }}>
-      <label style={{ display: "block", marginBottom: 6 }}>Add Evidence</label>
+    <div style={{ marginTop: "16px" }}>
+      <label htmlFor="evidence-file" style={{ display: "block", marginBottom: "8px" }}>Add Evidence</label>
       <input
+        id="evidence-file"
         type="file"
         accept={accept}
         onChange={onPick}
         disabled={busy}
       />
-      {busy && <div style={{ marginTop: 6 }}>Uploading: {progress}%</div>}
-      {error && <div style={{ color: "salmon", marginTop: 6 }}>{error}</div>}
+      {busy && (
+        <div style={{ marginTop: "12px" }}>
+          <div style={{ marginBottom: "8px", fontSize: "14px", color: "var(--muted, #a9b1b8)" }}>
+            Uploading: {progress}%
+          </div>
+          <progress value={progress} max="100" />
+        </div>
+      )}
+      {error && <div className="error" style={{ marginTop: "12px" }}>{error}</div>}
     </div>
   );
 }

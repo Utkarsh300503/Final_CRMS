@@ -26,40 +26,76 @@ export default function Signup() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h2>Signup</h2>
+    <div style={{ 
+      maxWidth: "500px", 
+      margin: "60px auto", 
+      padding: "40px",
+      background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08))",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: "16px",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.4)"
+    }}>
+      <h2 style={{ marginBottom: "24px", textAlign: "center" }}>Sign Up</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && (
+        <div className="error" style={{ marginBottom: "16px" }}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSignup}>
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        /><br/>
+        <div style={{ marginBottom: "16px" }}>
+          <label htmlFor="name">Full Name</label>
+          <input
+            id="name"
+            type="text"
+            placeholder="Enter your full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        /><br/>
+        <div style={{ marginBottom: "16px" }}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        /><br/>
+        <div style={{ marginBottom: "16px" }}>
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
 
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="officer">Officer</option>
-          <option value="admin">Admin</option>
-          <option value="viewer">Viewer</option>
-        </select><br/>
+        <div style={{ marginBottom: "20px" }}>
+          <label htmlFor="role">Role</label>
+          <select 
+            id="role"
+            value={role} 
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <option value="officer">Officer</option>
+            <option value="admin">Admin</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
 
-        <button type="submit">Signup</button>
+        <button type="submit" className="primary" style={{ width: "100%" }}>
+          Sign Up
+        </button>
       </form>
     </div>
   );
