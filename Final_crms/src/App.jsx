@@ -10,6 +10,7 @@ import OfficerDashboard from "./pages/OfficerDashboard";
 import CreateComplaint from "./pages/CreateComplaint";
 import ComplaintList from "./pages/ComplaintList";
 import ComplaintDetails from "./pages/ComplaintDetails";
+import AdminUsers from "./pages/AdminUsers"; // note: path to admin page
 
 import RoleProtected from "./components/RoleProtected";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -32,11 +33,13 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Layout user={user} onLogout={logout}>
+              {/* nested protected routes rendered inside the layout */}
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route index element={<Home />} />
+                <Route path="home" element={<Home />} />
 
                 <Route
-                  path="/officer"
+                  path="officer"
                   element={
                     <RoleProtected allowed={["officer", "admin"]}>
                       <OfficerDashboard />
@@ -45,7 +48,7 @@ function AppRoutes() {
                 />
 
                 <Route
-                  path="/officer/create"
+                  path="officer/create"
                   element={
                     <RoleProtected allowed={["officer", "admin"]}>
                       <CreateComplaint />
@@ -54,7 +57,7 @@ function AppRoutes() {
                 />
 
                 <Route
-                  path="/officer/list"
+                  path="officer/list"
                   element={
                     <RoleProtected allowed={["officer", "admin"]}>
                       <ComplaintList />
@@ -63,10 +66,19 @@ function AppRoutes() {
                 />
 
                 <Route
-                  path="/complaint/:id"
+                  path="complaint/:id"
                   element={
                     <RoleProtected allowed={["officer", "admin"]}>
                       <ComplaintDetails />
+                    </RoleProtected>
+                  }
+                />
+
+                <Route
+                  path="admin/users"
+                  element={
+                    <RoleProtected allowed={["admin"]}>
+                      <AdminUsers />
                     </RoleProtected>
                   }
                 />

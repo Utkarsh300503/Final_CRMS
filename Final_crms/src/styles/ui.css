@@ -127,3 +127,8 @@ html,body,#root{height:100%;margin:0;background:var(--bg);color:var(--text);font
   .ui-content{padding:16px}
   .brand-text{display:none}
 }
+
+/* quick nav styles */
+.nav { padding: 12px 14px; border-radius: 8px; color: #cfcfcf; text-decoration: none; display:block; }
+.nav:hover { background: rgba(255,255,255,0.02); }
+.nav-active { background: rgba(46,163,255,0.08); color: #fff; padding: 12px 14px; border-radius: 8px; text-decoration:none; display:block; }
